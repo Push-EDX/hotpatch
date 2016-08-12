@@ -1,21 +1,23 @@
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+
 ### hotpatch is a dll injection strategy
 ### Copyright (c) 2010-2011, Vikas Naresh Kumar, Selective Intellect LLC
 ### All rights reserved.
-### 
+###
 ### Redistribution and use in source and binary forms, with or without
 ### modification, are permitted provided that the following conditions are met:
-### 
+###
 ###     * Redistributions of source code must retain the above copyright
 ###       notice, this list of conditions and the following disclaimer.
-### 
+###
 ###     * Redistributions in binary form must reproduce the above copyright
 ###       notice, this list of conditions and the following disclaimer in the
 ###       documentation and/or other materials provided with the distribution.
-### 
+###
 ###     * Neither the name of Selective Intellect LLC nor the
 ###       names of its contributors may be used to endorse or promote products
 ###       derived from this software without specific prior written permission.
-### 
+###
 ### THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ### ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 ### WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,45 +28,30 @@
 ### ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ### (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ### SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-### 
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+###
 
 option(DEBUG "In Debug mode" ON)
 option(USE_ASM "Use Assembler" OFF)
+option(BUILD_HOTPATCHER_SHARED "Build shared hotpatcher library" ON)
+option(BUILD_HOTPATCHER_STATIC "Build static hotpatcher library" ON)
 option(BUILD_HOTPATCHER "Build hotpatcher" ON)
 option(BUILD_TESTS "Build tests" ON)
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(DEBUG OFF)
 endif (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-if (CMAKE_COMPILER_IS_GNUCC)
-	if (ARCH)
-		if (ARCH STREQUAL "x86_64")
-			message(STATUS "Compiling for ${ARCH} 64-bit")
-			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
-			set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m64")
-		else (ARCH STREQUAL "x86_64")
-			message(STATUS "Compiling for ${ARCH} 32-bit")
-			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
-			set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m32")
-		endif (ARCH STREQUAL "x86_64")
-	endif (ARCH)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fPIC -pedantic -ansi -posix")
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -fno-inline")
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -pedantic -ansi -posix")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fno-inline")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-endif (CMAKE_COMPILER_IS_GNUCC)
+
 include(CTest)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckIncludeFiles)
 include(CheckSymbolExists)
 include(CheckTypeSize)
+
 if (WIN32 OR APPLE)
 	message(FATAL_ERROR "Windows or Mac OSX is not supported")
-endif (WIN32 OR APPLE)
+endif ()
+
 check_include_file("features.h" HOTPATCH_HAS_FEATURES_H)
 check_include_file("errno.h" HOTPATCH_HAS_ERRNO_H)
 check_include_file("stdio.h" HOTPATCH_HAS_STDIO_H)
@@ -75,6 +62,7 @@ check_function_exists("strtok_r" HOTPATCH_HAS_STRTOKR_FN)
 check_include_file("stddef.h" HOTPATCH_HAS_STDDEF_H)
 check_include_file("stdint.h" HOTPATCH_HAS_STDINT_H)
 check_include_file("stdarg.h" HOTPATCH_HAS_STDARG_H)
+check_include_file("inttypes.h" HOTPATCH_HAS_INTTYPES_H)
 check_include_file("stdbool.h" HOTPATCH_HAS_STDBOOL_H)
 check_include_file("time.h" HOTPATCH_HAS_TIME_H)
 check_include_file("sys/time.h" HOTPATCH_HAS_SYS_TIME_H)
@@ -102,10 +90,9 @@ if (UNIX AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	check_include_file("sys/syscall.h" HOTPATCH_HAS_LINUX_SYS_SYSCALL_H)
 	check_include_files("sys/types.h;sys/user.h" HOTPATCH_HAS_LINUX_SYS_USER_H)
 	check_function_exists("dl_iterate_phdr" HOTPATCH_HAS_LINUX_DLITERPHDR_FN)
-	check_type_size("void *" HOTPATCH_VOIDPTR_SIZE) 
-	if (NOT HAVE_HOTPATCH_VOIDPTR_SIZE)
-		message(FATAL_ERROR "(void *) does not seem to be supported.")
-	endif (NOT HAVE_HOTPATCH_VOIDPTR_SIZE)
+
+	set(HOTPATCH_VOIDPTR_SIZE ${CMAKE_SIZEOF_VOID_P})
+
 	## Find assemblers
 	if (USE_ASM)
 	include(FindPerl)

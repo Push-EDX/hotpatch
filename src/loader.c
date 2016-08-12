@@ -69,28 +69,28 @@ void ld_procmaps_dump(struct ld_procmaps *pm)
 {
     if (!pm)
         return;
-    fprintf(stderr, "[%s:%d] Pathname: %s\n", __func__, __LINE__,
+    fprintf(stderr, "[%s:%d] Pathname: %s\n", __extension__ __FUNCTION__, __LINE__,
 			pm->pathname ? pm->pathname : "Unknown");
     fprintf(stderr, "[%s:%d] Address Start: "LX" End: "LX" Valid:"
-					" %d Offset: "LU"\n", __func__, __LINE__,
+					" %d Offset: "LU"\n", __extension__ __FUNCTION__, __LINE__,
 			pm->addr_begin, pm->addr_end, pm->addr_valid,
 			(size_t)pm->offset);
     fprintf(stderr, "[%s:%d] Device Major: %d Minor: %d\n",
-			__func__, __LINE__, pm->device_major, pm->device_minor);
-    fprintf(stderr, "[%s:%d] Inode: "LU"\n", __func__, __LINE__,
+			__extension__ __FUNCTION__, __LINE__, pm->device_major, pm->device_minor);
+    fprintf(stderr, "[%s:%d] Inode: "LU"\n", __extension__ __FUNCTION__, __LINE__,
 			(size_t)pm->inode);
     fprintf(stderr, "[%s:%d] Permissions: Read(%d) Write(%d) "
 					"Execute(%d) Private(%d) Shared(%d)\n",
-			__func__, __LINE__,
+			__extension__ __FUNCTION__, __LINE__,
             (pm->permissions & PROCMAPS_PERMS_READ) ? 1 : 0,
             (pm->permissions & PROCMAPS_PERMS_WRITE) ? 1 : 0,
             (pm->permissions & PROCMAPS_PERMS_EXEC) ? 1 : 0,
             (pm->permissions & PROCMAPS_PERMS_PRIVATE) ? 1 : 0,
 			(pm->permissions & PROCMAPS_PERMS_SHARED) ? 1 : 0
 	);
-    fprintf(stderr, "[%s:%d] Pathname length: "LU"\n", __func__, __LINE__,
+    fprintf(stderr, "[%s:%d] Pathname length: "LU"\n", __extension__ __FUNCTION__, __LINE__,
 			pm->pathname_sz);
-    fprintf(stderr, "[%s:%d] Filetype: %d\n", __func__, __LINE__,
+    fprintf(stderr, "[%s:%d] Filetype: %d\n", __extension__ __FUNCTION__, __LINE__,
 			pm->filetype);
 }
 
@@ -99,7 +99,7 @@ int ld_procmaps_parse(char *buf, size_t bufsz, struct ld_procmaps *pm,
 {
     if (!buf || !pm) {
 		if (verbose > 2)
-			fprintf(stderr, "[%s:%d] Invalid arguments.\n", __func__, __LINE__);
+			fprintf(stderr, "[%s:%d] Invalid arguments.\n", __extension__ __FUNCTION__, __LINE__);
         return -1;
 	}
     /* this is hardcoded parsing of the maps file */
@@ -117,7 +117,7 @@ int ld_procmaps_parse(char *buf, size_t bufsz, struct ld_procmaps *pm,
         if (!pm->addr_valid) {
 			if (verbose > 2)
 				fprintf(stderr, "[%s:%d] Strtoul error(%s) in parsing %s\n",
-						__func__, __LINE__, strerror(err), token);
+						__extension__ __FUNCTION__, __LINE__, strerror(err), token);
         }
         token = strtok_r(NULL, " ", &save);
         if (!token) break;
@@ -128,7 +128,7 @@ int ld_procmaps_parse(char *buf, size_t bufsz, struct ld_procmaps *pm,
         if (!pm->addr_valid) {
 			if (verbose > 2)
 				fprintf(stderr, "[%s:%d] Strtoul error(%s) in parsing %s\n",
-						__func__, __LINE__, strerror(err), token);
+						__extension__ __FUNCTION__, __LINE__, strerror(err), token);
         }
         token = strtok_r(NULL, " ", &save);
         if (!token) break;
@@ -154,7 +154,7 @@ int ld_procmaps_parse(char *buf, size_t bufsz, struct ld_procmaps *pm,
                 break;
             default:
 				if (verbose > 2)
-	                fprintf(stderr, "[%s:%d] Unknown flag: %c\n", __func__,
+	                fprintf(stderr, "[%s:%d] Unknown flag: %c\n", __extension__ __FUNCTION__,
 							__LINE__, token[idx]);
                 break;
             }
@@ -167,7 +167,7 @@ int ld_procmaps_parse(char *buf, size_t bufsz, struct ld_procmaps *pm,
         if (err == ERANGE || err == EINVAL) {
 			if (verbose > 2)
 				fprintf(stderr, "[%s:%d] Strtoul error(%s) in parsing %s\n",
-						__func__, __LINE__, strerror(err), token);
+						__extension__ __FUNCTION__, __LINE__, strerror(err), token);
         }
         token = strtok_r(NULL, ":", &save);
         if (!token) break;
@@ -210,7 +210,7 @@ int ld_procmaps_parse(char *buf, size_t bufsz, struct ld_procmaps *pm,
 					int err = errno;
 					if (verbose > 2)
 						fprintf(stderr, "[%s:%d] Unable to stat file %s. Error:"
-								" %s\n", __func__, __LINE__, pm->pathname,
+								" %s\n", __extension__ __FUNCTION__, __LINE__, pm->pathname,
 								strerror(err));
                 }
             }
@@ -227,7 +227,7 @@ int ld_procmaps_parse(char *buf, size_t bufsz, struct ld_procmaps *pm,
             } else {
 				if (verbose > 2)
 	                fprintf(stderr, "[%s:%d] Unknown memory map: %s\n",
-							__func__, __LINE__, pm->pathname);
+							__extension__ __FUNCTION__, __LINE__, pm->pathname);
                 pm->filetype = PROCMAPS_FILETYPE_UNKNOWN;
             }
         } else {
@@ -255,9 +255,9 @@ struct ld_procmaps *ld_load_maps(pid_t pid, int verbose, size_t *num)
 	snprintf(filename, OS_MAX_BUFFER, "/proc/%d/maps", pid);
 	snprintf(appname, OS_MAX_BUFFER, "/proc/%d/exe", pid);
 	if (verbose > 2) {
-		fprintf(stderr, "[%s:%d] Using Proc Maps from %s\n", __func__,
+		fprintf(stderr, "[%s:%d] Using Proc Maps from %s\n", __extension__ __FUNCTION__,
 				__LINE__, filename);
-		fprintf(stderr, "[%s:%d] Using Proc Exe from %s\n", __func__,
+		fprintf(stderr, "[%s:%d] Using Proc Exe from %s\n", __extension__ __FUNCTION__,
 				__LINE__, appname);
 	}
 	do {
@@ -275,7 +275,7 @@ struct ld_procmaps *ld_load_maps(pid_t pid, int verbose, size_t *num)
 			mapmax++;
 		if (verbose > 0)
 			fprintf(stderr, "[%s:%d] Max number of mappings present: "LU"\n",
-					__func__, __LINE__, mapmax);
+					__extension__ __FUNCTION__, __LINE__, mapmax);
 		fseek(ff, 0L, SEEK_SET);
 		maps = calloc(sizeof(*maps), mapmax);
 		if (!maps) {
@@ -285,18 +285,18 @@ struct ld_procmaps *ld_load_maps(pid_t pid, int verbose, size_t *num)
 		if (verbose > 1)
 			fprintf(stderr,
 					"[%s:%d] Allocated memory to load proc maps.\n",
-					__func__, __LINE__);
+					__extension__ __FUNCTION__, __LINE__);
 		memset(buf, 0, bufsz);
 		mapnum = 0;
 		while (fgets(buf, bufsz, ff)) {
 			struct ld_procmaps *pm = &maps[mapnum];
 			if (verbose > 3)
-				fprintf(stderr, "[%s:%d] Parsing %s\n", __func__, __LINE__,
+				fprintf(stderr, "[%s:%d] Parsing %s\n", __extension__ __FUNCTION__, __LINE__,
 						buf);
 			if (ld_procmaps_parse(buf, bufsz, pm, appname, verbose) < 0) {
 				if (verbose > 1) {
 					fprintf(stderr, "[%s:%d] Parsing failure. Ignoring.\n",
-							__func__, __LINE__);
+							__extension__ __FUNCTION__, __LINE__);
 				}
 				continue;
 			}
@@ -309,7 +309,7 @@ struct ld_procmaps *ld_load_maps(pid_t pid, int verbose, size_t *num)
 		else
 			if (verbose > 3)
 				fprintf(stderr, "[%s:%d] Cannot return size of maps object.\n",
-						__func__, __LINE__);
+						__extension__ __FUNCTION__, __LINE__);
 	} while (0);
 	if (buf)
 	    free(buf);
@@ -338,7 +338,7 @@ int ld_find_library(const struct ld_procmaps *maps, const size_t mapnum,
 {
 	if (!maps && !libpath) {
 		if (verbose > 3)
-			fprintf(stderr, "[%s:%d] Invalid arguments.\n", __func__,
+			fprintf(stderr, "[%s:%d] Invalid arguments.\n", __extension__ __FUNCTION__,
 					__LINE__);
 		return -1;
 	} else {
@@ -354,26 +354,26 @@ int ld_find_library(const struct ld_procmaps *maps, const size_t mapnum,
 				if (verbose > 1)
 					fprintf(stderr,
 							"[%s:%d] Unable to get inode for %s. Error: %s\n",
-							__func__, __LINE__, libpath, strerror(err));
+							__extension__ __FUNCTION__, __LINE__, libpath, strerror(err));
 				return -1;
 			}
 			inode = statbuf.st_ino;
 		} else {
 			if (verbose > 2)
 				fprintf(stderr, "[%s:%d] Not doing an inode match.\n",
-						__func__, __LINE__);
+						__extension__ __FUNCTION__, __LINE__);
 			nonlib_match = (strchr(libpath, '[') || strchr(libpath, ']')) ?
 							true : false;
 			if (verbose > 2 && nonlib_match)
 				fprintf(stderr, "[%s:%d] Found '[' or ']' in %s\n",
-						__func__, __LINE__, libpath);
+						__extension__ __FUNCTION__, __LINE__, libpath);
 			exact_match = (strchr(libpath, '/')) ? true : false;
 			if (verbose > 2 && exact_match)
 				fprintf(stderr, "[%s:%d] Found '/' in %s. Doing an exact "
-						"match search\n", __func__, __LINE__, libpath);
+						"match search\n", __extension__ __FUNCTION__, __LINE__, libpath);
 			if (!nonlib_match && !exact_match && verbose > 0)
 				fprintf(stderr, "[%s:%d] Doing best substring search for %s.\n",
-						__func__, __LINE__, libpath);
+						__extension__ __FUNCTION__, __LINE__, libpath);
 		}
 		for (idx = 0; idx < mapnum; ++idx) {
 			const struct ld_procmaps *pm = &maps[idx];
@@ -434,17 +434,17 @@ int ld_find_library(const struct ld_procmaps *maps, const size_t mapnum,
 			if (found) {
 				if (verbose > 2)
 					fprintf(stderr, "[%s:%d] Found index ("LU") matching.\n",
-							__func__, __LINE__, idx);
+							__extension__ __FUNCTION__, __LINE__, idx);
 				if (verbose > 0)
 					fprintf(stderr, "[%s:%d] Found entry %s matching %s\n",
-							__func__, __LINE__, pm->pathname, libpath);
+							__extension__ __FUNCTION__, __LINE__, pm->pathname, libpath);
 				break;
 			}
 		}
 		if (!found) {
 			if (verbose > 0) {
 				fprintf(stderr, "[%s:%d] Library %s not found in procmaps\n",
-						__func__, __LINE__, libpath);
+						__extension__ __FUNCTION__, __LINE__, libpath);
 			}
 			return -1;
 		}
@@ -456,7 +456,7 @@ int ld_find_library(const struct ld_procmaps *maps, const size_t mapnum,
 			} else {
 				if (verbose > 1)
 					fprintf(stderr, "[%s:%d] Addresses are invalid for %s\n",
-							__func__, __LINE__, lib->pathname);
+							__extension__ __FUNCTION__, __LINE__, lib->pathname);
 				return -1;
 			}
 			lib->inode = pm->inode;
@@ -486,13 +486,13 @@ uintptr_t ld_find_address(const struct ld_library *lib, const char *symbol,
 			size_t idx = 0;
 			if (verbose > 1)
 				fprintf(stderr, "[%s:%d] "LU" symbols found in %s\n",
-						__func__, __LINE__, syms_num, lib->pathname);
+						__extension__ __FUNCTION__, __LINE__, syms_num, lib->pathname);
 			qsort(syms, syms_num, sizeof(*syms), elf_symbol_cmpqsort);
 			for (idx = 0; idx < syms_num; ++idx) {
 				if (strcmp(symbol, syms[idx].name) == 0) {
 					if (verbose > 2)
 						fprintf(stderr, "[%s:%d] Found %s in symbol list at "
-								""LU" with address offset "LX"\n", __func__,
+								""LU" with address offset "LX"\n", __extension__ __FUNCTION__,
 								__LINE__, symbol, idx, syms[idx].address);
 					if (syms[idx].address > lib->addr_begin)
 						ptr = syms[idx].address;
@@ -512,11 +512,11 @@ uintptr_t ld_find_address(const struct ld_library *lib, const char *symbol,
 		} else {
 			if (verbose > 0)
 				fprintf(stderr, "[%s:%d] No symbols found in %s\n",
-						__func__, __LINE__, lib->pathname);
+						__extension__ __FUNCTION__, __LINE__, lib->pathname);
 		}
 	} else {
 		if (verbose > 3)
-			fprintf(stderr, "[%s:%d] Invalid arguments.\n", __func__,
+			fprintf(stderr, "[%s:%d] Invalid arguments.\n", __extension__ __FUNCTION__,
 					__LINE__);
 	}
 	return ptr;

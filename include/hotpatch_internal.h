@@ -37,34 +37,34 @@
 
 #undef LOG_ERROR_INVALID_PID
 #define LOG_ERROR_INVALID_PID(A) do { \
-	fprintf(stderr, "[%s:%d] Invalid PID: %d\n", __func__, __LINE__, A); \
+	fprintf(stderr, "[%s:%d] Invalid PID: %d\n", __extension__ __FUNCTION__, __LINE__, A); \
 } while (0)
 
 #undef LOG_ERROR_OUT_OF_MEMORY
 #define LOG_ERROR_OUT_OF_MEMORY do { \
 	int err = errno; \
-	fprintf(stderr, "[%s:%d] Out of memory. Error: %s\n", __func__, __LINE__,\
+	fprintf(stderr, "[%s:%d] Out of memory. Error: %s\n", __extension__ __FUNCTION__, __LINE__,\
 			strerror(err)); \
 } while (0)
 
 #undef LOG_ERROR_FILE_OPEN
 #define LOG_ERROR_FILE_OPEN(FF) do { \
 	int err = errno; \
-	fprintf(stderr, "[%s:%d] File(%s) open error. Error: %s\n", __func__, __LINE__,\
+	fprintf(stderr, "[%s:%d] File(%s) open error. Error: %s\n", __extension__ __FUNCTION__, __LINE__,\
 			FF, strerror(err)); \
 } while (0)
 
 #undef LOG_ERROR_FILE_SEEK
 #define LOG_ERROR_FILE_SEEK do { \
 	int err = errno; \
-	fprintf(stderr, "[%s:%d] File seek error. Error: %s\n", __func__, __LINE__,\
+	fprintf(stderr, "[%s:%d] File seek error. Error: %s\n", __extension__ __FUNCTION__, __LINE__,\
 			strerror(err)); \
 } while (0)
 
 #undef LOG_ERROR_FILE_READ
 #define LOG_ERROR_FILE_READ do { \
 	int err = errno; \
-	fprintf(stderr, "[%s:%d] File read error. Error: %s\n", __func__, __LINE__,\
+	fprintf(stderr, "[%s:%d] File read error. Error: %s\n", __extension__ __FUNCTION__, __LINE__,\
 			strerror(err)); \
 } while (0)
 
@@ -72,11 +72,11 @@
 #define LOG_ERROR_UNSUPPORTED_PROCESSOR do { \
 	fprintf(stderr, \
 			"[%s:%d] Only 32/64-bit Intel X86/X86-64 processors are supported.\n",\
-			__func__, __LINE__); \
+			__extension__ __FUNCTION__, __LINE__); \
 } while (0)
 #define LOG_INFO_HEADERS_LOADED(verbose) do { \
 	if (verbose > 2) \
-		fprintf(stderr, "[%s:%d] Exe headers loaded.\n", __func__, __LINE__); \
+		fprintf(stderr, "[%s:%d] Exe headers loaded.\n", __extension__ __FUNCTION__, __LINE__); \
 } while (0)
 
 struct ld_procmaps;

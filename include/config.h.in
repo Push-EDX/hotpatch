@@ -72,6 +72,11 @@
 	#define strtok_r(a,b,c) strtok(a,b)
 #endif
 
+#cmakedefine HOTPATCH_HAS_INTTYPES_H
+#ifdef HOTPATCH_HAS_INTTYPES_H
+	#include <inttypes.h>
+#endif
+
 #cmakedefine HOTPATCH_HAS_STDDEF_H
 #ifdef HOTPATCH_HAS_STDDEF_H
 	#include <stddef.h>

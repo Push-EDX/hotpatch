@@ -1,21 +1,21 @@
 ### hotpatch is a dll injection strategy
 ### Copyright (c) 2010-2011, Vikas Naresh Kumar, Selective Intellect LLC
 ### All rights reserved.
-### 
+###
 ### Redistribution and use in source and binary forms, with or without
 ### modification, are permitted provided that the following conditions are met:
-### 
+###
 ###     * Redistributions of source code must retain the above copyright
 ###       notice, this list of conditions and the following disclaimer.
-### 
+###
 ###     * Redistributions in binary form must reproduce the above copyright
 ###       notice, this list of conditions and the following disclaimer in the
 ###       documentation and/or other materials provided with the distribution.
-### 
+###
 ###     * Neither the name of Selective Intellect LLC nor the
 ###       names of its contributors may be used to endorse or promote products
 ###       derived from this software without specific prior written permission.
-### 
+###
 ### THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ### ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 ### WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,7 +26,7 @@
 ### ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ### (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ### SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-### 
+###
 project(hotpatch)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -54,20 +54,43 @@ endforeach (ASM_VAR call32 call64)
 add_custom_target(asm_header DEPENDS ${ASM_HEADERS})
 endif (USE_ASM)
 
-add_library(hotpatch SHARED hotpatch.c exedetails.c loader.c)
-add_library(hotpatch_s STATIC hotpatch.c exedetails.c loader.c)
+if(BUILD_HOTPATCHER_SHARED)
+	add_library(hotpatch SHARED hotpatch.c exedetails.c loader.c)
+else()
+	add_custom_target(hotpatch)
+endif()
+
+if(BUILD_HOTPATCHER_STATIC)
+	add_library(hotpatch_s STATIC hotpatch.c exedetails.c loader.c)
+else()
+	add_custom_target(hotpatch_s)
+endif()
+
+# Set flags
+if (CMAKE_COMPILER_IS_GNUCC)
+	if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+	    set_target_properties(hotpatch PROPERTIES COMPILE_FLAGS "-m64" LINK_FLAGS "-m64")
+		set_target_properties(hotpatch_s PROPERTIES COMPILE_FLAGS "-m64" LINK_FLAGS "-m64")
+	else ()
+	    set_target_properties(hotpatch PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+		set_target_properties(hotpatch_s PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+	endif()
+
+	set_target_properties(hotpatch PROPERTIES
+		POSITION_INDEPENDENT_CODE ON
+		COMPILE_FLAGS 			"-Wall -pedantic -ansi -posix"
+		COMPILE_FLAGS_DEBUG		"-O0 -fno-inline"
+		COMPILE_FLAGS_RELEASE	"-O2"
+	)
+	set_target_properties(hotpatch_s PROPERTIES
+		POSITION_INDEPENDENT_CODE ON
+		COMPILE_FLAGS 			"-Wall -pedantic -ansi -posix"
+		COMPILE_FLAGS_DEBUG		"-O0 -fno-inline"
+		COMPILE_FLAGS_RELEASE	"-O2"
+	)
+endif ()
+
 if (USE_ASM)
 	add_dependencies(hotpatch asm_header)
 	add_dependencies(hotpatch_s asm_header)
 endif (USE_ASM)
-set_target_properties(hotpatch_s PROPERTIES OUTPUT_NAME "hotpatch"
-	CLEAN_DIRECT_OUTPUT 1)
-set_target_properties(hotpatch PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-install(TARGETS hotpatch LIBRARY DESTINATION lib)
-install(TARGETS hotpatch_s ARCHIVE DESTINATION lib)
-
-if (BUILD_HOTPATCHER)
-	add_executable(hotpatcher main.c)
-	target_link_libraries(hotpatcher hotpatch_s)
-	install(TARGETS hotpatcher RUNTIME DESTINATION bin)
-endif (BUILD_HOTPATCHER)

@@ -98,7 +98,7 @@ static int exe_open_filename(const char *filename, int verbose)
 	if (fd < 0)
 		LOG_ERROR_FILE_OPEN(filename);
 	if (verbose > 3)
-		fprintf(stderr, "[%s:%d] Exe file descriptor: %d\n", __func__,
+		fprintf(stderr, "[%s:%d] Exe file descriptor: %d\n", __extension__ __FUNCTION__,
 				__LINE__, fd);
 	return fd;
 }
@@ -116,13 +116,13 @@ static int exe_elf_identify(unsigned char *e_ident, size_t size, int verbose)
 			case ELFCLASS32:
 				is64 = HOTPATCH_EXE_IS_32BIT;
 				if (verbose > 3)
-					fprintf(stderr, "[%s:%d] File is 32-bit ELF\n", __func__,
+					fprintf(stderr, "[%s:%d] File is 32-bit ELF\n", __extension__ __FUNCTION__,
 							__LINE__);
 				break;
 			case ELFCLASS64:
 				is64 = HOTPATCH_EXE_IS_64BIT;
 				if (verbose > 3)
-					fprintf(stderr, "[%s:%d] File is 64-bit ELF\n", __func__,
+					fprintf(stderr, "[%s:%d] File is 64-bit ELF\n", __extension__ __FUNCTION__,
 							__LINE__);
 				break;
 			case ELFCLASSNONE:
@@ -130,7 +130,7 @@ static int exe_elf_identify(unsigned char *e_ident, size_t size, int verbose)
 				is64 = HOTPATCH_EXE_IS_NEITHER;
 				if (verbose > 3)
 					fprintf(stderr, "[%s:%d] File is unsupported ELF\n",
-							__func__, __LINE__);
+							__extension__ __FUNCTION__, __LINE__);
 				break;
 			}
 			if (is64 != HOTPATCH_EXE_IS_NEITHER) {
@@ -142,36 +142,36 @@ static int exe_elf_identify(unsigned char *e_ident, size_t size, int verbose)
 					isbigendian = 0;
 					if (verbose > 3)
 						fprintf(stderr, "[%s:%d] Little endian format.\n",
-								__func__, __LINE__);
+								__extension__ __FUNCTION__, __LINE__);
 					break;
 				case ELFDATA2MSB:
 					isbigendian = 1;
 					if (verbose > 3)
 						fprintf(stderr, "[%s:%d] Big endian format.\n",
-								__func__, __LINE__);
+								__extension__ __FUNCTION__, __LINE__);
 					break;
 				case ELFDATANONE:
 				default:
 					isbigendian = -1;
 					if (verbose > 2)
 						fprintf(stderr, "[%s:%d] Unknown endian format.\n",
-								__func__, __LINE__);
+								__extension__ __FUNCTION__, __LINE__);
 					break;
 				}
 				if (e_ident[EI_VERSION] == EV_CURRENT) {
 					iscurrent = 1;
 					if (verbose > 3)
 						fprintf(stderr, "[%s:%d] Current ELF format.\n",
-								__func__, __LINE__);
+								__extension__ __FUNCTION__, __LINE__);
 				}
 				if (verbose > 3)
-					fprintf(stderr, "[%s:%d] ELFOSABI: %d\n", __func__,
+					fprintf(stderr, "[%s:%d] ELFOSABI: %d\n", __extension__ __FUNCTION__,
 							__LINE__, e_ident[EI_OSABI]);
 				if (e_ident[EI_OSABI] == ELFOSABI_LINUX ||
 					e_ident[EI_OSABI] == ELFOSABI_SYSV) {
 					islinux = 1;
 					if (verbose > 3)
-						fprintf(stderr, "[%s:%d] OS ABI is Linux.\n", __func__,
+						fprintf(stderr, "[%s:%d] OS ABI is Linux.\n", __extension__ __FUNCTION__,
 								__LINE__);
 				}
 				if (islinux && isbigendian == 0 && iscurrent) {
@@ -179,12 +179,12 @@ static int exe_elf_identify(unsigned char *e_ident, size_t size, int verbose)
 				}
 				if (verbose > 1)
 					fprintf(stderr, "[%s:%d] Not an acceptable header.\n",
-							__func__, __LINE__);
+							__extension__ __FUNCTION__, __LINE__);
 			}
 		} else {
 			if (verbose > 3)
 				fprintf(stderr, "[%s:%d] This is not an ELF file format.\n",
-						__func__, __LINE__);
+						__extension__ __FUNCTION__, __LINE__);
 		}
 	}
 	return HOTPATCH_EXE_IS_NEITHER;
@@ -197,7 +197,7 @@ static int exe_load_symbol_table(struct elf_internals *ei, Elf_Shdr *symh,
 	size_t strsymtbl_size = 0;
 	while (ei && symh && strh) {
 		if (verbose > 3)
-			fprintf(stderr, "[%s:%d] Retrieving symbol table.\n", __func__,
+			fprintf(stderr, "[%s:%d] Retrieving symbol table.\n", __extension__ __FUNCTION__,
 					__LINE__);
 		if (lseek(ei->fd, strh->sh_offset, SEEK_SET) < 0) {
 			LOG_ERROR_FILE_SEEK;
@@ -253,7 +253,7 @@ static int exe_load_symbol_table(struct elf_internals *ei, Elf_Shdr *symh,
 					if (verbose > 2)
 						fprintf(stderr,
 							"[%s:%d] Symbol "LU" is %s at %p type %d size "LU"\n",
-							__func__, __LINE__, idx, name,
+							__extension__ __FUNCTION__, __LINE__, idx, name,
 							(void *)syms[idx].st_value, symtype,
 							syms[idx].st_size);
 					name2 = strdup(name);
@@ -290,7 +290,7 @@ static int exe_load_section_headers(struct elf_internals *ei, int verbose)
 	if (!ei || ei->sechdr_offset == 0 || ei->sechdr_size == 0)
 		return -1;
 	if (verbose > 3)
-		fprintf(stderr, "[%s:%d] Retrieving section headers.\n", __func__,
+		fprintf(stderr, "[%s:%d] Retrieving section headers.\n", __extension__ __FUNCTION__,
 				__LINE__);
 	ei->sechdrs = malloc(ei->sechdr_size);
 	if (!ei->sechdrs) {
@@ -300,7 +300,7 @@ static int exe_load_section_headers(struct elf_internals *ei, int verbose)
 	memset(ei->sechdrs, 0, ei->sechdr_size);
 	if (verbose > 3)
 		fprintf(stderr, "[%s:%d] Reading section header offset at "LU"\n",
-				__func__, __LINE__, (size_t)ei->sechdr_offset);
+				__extension__ __FUNCTION__, __LINE__, (size_t)ei->sechdr_offset);
 	if (lseek(ei->fd, ei->sechdr_offset, SEEK_SET) < 0) {
 		LOG_ERROR_FILE_SEEK;
 		return -1;
@@ -326,18 +326,18 @@ static int exe_load_section_headers(struct elf_internals *ei, int verbose)
 		return -1;
 	}
 	if (verbose > 3)
-		fprintf(stderr, "[%s:%d] Number of sections: "LU"\n", __func__, __LINE__,
+		fprintf(stderr, "[%s:%d] Number of sections: "LU"\n", __extension__ __FUNCTION__, __LINE__,
 				ei->sechdr_num);
 	for (idx = 0; idx < ei->sechdr_num; ++idx) {
 		const char *name = &ei->strsectbl[sechdrs[idx].sh_name];
 		if (verbose > 2) {
 			if (name)
 				fprintf(stderr, "[%s:%d] Section name: %s Addr: %p Len: "LU"\n",
-						__func__, __LINE__, name, (void *)sechdrs[idx].sh_offset,
+						__extension__ __FUNCTION__, __LINE__, name, (void *)sechdrs[idx].sh_offset,
 						sechdrs[idx].sh_size);
 			else
 				fprintf(stderr, "[%s:%d] Section name: %s Addr: %p Len: "LU"\n",
-						__func__, __LINE__, "N/A", (void *)sechdrs[idx].sh_offset,
+						__extension__ __FUNCTION__, __LINE__, "N/A", (void *)sechdrs[idx].sh_offset,
 						sechdrs[idx].sh_size);
 		}
 		switch (sechdrs[idx].sh_type) {
@@ -347,7 +347,7 @@ static int exe_load_section_headers(struct elf_internals *ei, int verbose)
 			if (verbose > 3)
 				fprintf(stderr, "[%s:%d] Symbol table offset: "LU" size: "LU" "
 						"entsize: "LU" entries: "LU"\n",
-				__func__, __LINE__, sechdrs[idx].sh_offset,
+				__extension__ __FUNCTION__, __LINE__, sechdrs[idx].sh_offset,
 				sechdrs[idx].sh_size, sechdrs[idx].sh_entsize,
 				(sechdrs[idx].sh_entsize > 0 ? sechdrs[idx].sh_size / sechdrs[idx].sh_entsize : 0));
 			break;
@@ -356,11 +356,11 @@ static int exe_load_section_headers(struct elf_internals *ei, int verbose)
 				strtab = idx;
 				if (verbose > 2)
 					fprintf(stderr, "[%s:%d] Reading symbol table from %s\n",
-							__func__, __LINE__, name);
+							__extension__ __FUNCTION__, __LINE__, name);
 				if (symtab >= 0 && exe_load_symbol_table(ei, &sechdrs[symtab],
 							&sechdrs[strtab], verbose) < 0) {
 					fprintf(stderr, "[%s:%d] Failed to retrieve symbol "
-							"table.\n", __func__, __LINE__);
+							"table.\n", __extension__ __FUNCTION__, __LINE__);
 				}
 				symtab = -1;
 			}
@@ -394,7 +394,7 @@ static int exe_load_program_headers(struct elf_internals *ei, int verbose)
 		return -1;
 	}
 	if (verbose > 3)
-		fprintf(stderr, "[%s:%d] Number of segments: "LU"\n", __func__, __LINE__,
+		fprintf(stderr, "[%s:%d] Number of segments: "LU"\n", __extension__ __FUNCTION__, __LINE__,
 				ei->proghdr_num);
 	proghdrs = (Elf_Phdr *)ei->proghdrs;
 	for (idx = 0; idx < ei->proghdr_num; ++idx) {
@@ -403,14 +403,14 @@ static int exe_load_program_headers(struct elf_internals *ei, int verbose)
 			fprintf(stderr,
 					"[%s:%d] Prog-header "LU": Type: %d "
 					"VAddr: %p PAddr: %p FileSz: "LU" MemSz: "LU"\n",
-					__func__, __LINE__, idx, proghdrs[idx].p_type,
+					__extension__ __FUNCTION__, __LINE__, idx, proghdrs[idx].p_type,
 					(void *)proghdrs[idx].p_vaddr,
 					(void *)proghdrs[idx].p_paddr,
 					proghdrs[idx].p_filesz, proghdrs[idx].p_memsz);
 		}
 		if (proghdrs[idx].p_type == PT_INTERP) {
 			if (verbose > 1)
-				fprintf(stderr, "[%s:%d] PT_INTERP section found\n", __func__,
+				fprintf(stderr, "[%s:%d] PT_INTERP section found\n", __extension__ __FUNCTION__,
 					__LINE__);
 			if (proghdrs[idx].p_filesz == 0)
 				continue;
@@ -438,15 +438,15 @@ static int exe_load_program_headers(struct elf_internals *ei, int verbose)
 			ei->interp.ph_addr = proghdrs[idx].p_vaddr;
 			if (verbose > 1)
 				fprintf(stderr, "[%s:%d] Found %s at V-Addr 0x"LX"\n",
-						__func__, __LINE__, ei->interp.name,
+						__extension__ __FUNCTION__, __LINE__, ei->interp.name,
 						ei->interp.ph_addr);
 		} else if (proghdrs[idx].p_type == PT_DYNAMIC) {
 			if (verbose > 1)
-				fprintf(stderr, "[%s:%d] PT_DYNAMIC section found\n", __func__,
+				fprintf(stderr, "[%s:%d] PT_DYNAMIC section found\n", __extension__ __FUNCTION__,
 					__LINE__);
 		} else if (proghdrs[idx].p_type == PT_LOAD) {
 			if (verbose > 1)
-				fprintf(stderr, "[%s:%d] PT_LOAD section found\n", __func__,
+				fprintf(stderr, "[%s:%d] PT_LOAD section found\n", __extension__ __FUNCTION__,
 					__LINE__);
 		}
 	}
@@ -471,23 +471,23 @@ static int exe_load_headers(struct elf_internals *ei, int verbose)
 		return -1;
 	}
 	if (verbose > 3)
-		fprintf(stderr, "[%s:%d] Reading Elf header.\n", __func__, __LINE__);
+		fprintf(stderr, "[%s:%d] Reading Elf header.\n", __extension__ __FUNCTION__, __LINE__);
 	ei->is64 = exe_elf_identify(hdr.e_ident, EI_NIDENT, verbose);
 	switch (ei->is64) {
 	case HOTPATCH_EXE_IS_64BIT:
 		if (verbose > 3)
-			fprintf(stderr, "[%s:%d] 64-bit valid exe\n", __func__, __LINE__);
+			fprintf(stderr, "[%s:%d] 64-bit valid exe\n", __extension__ __FUNCTION__, __LINE__);
 		break;
 	case HOTPATCH_EXE_IS_32BIT:
 		if (verbose > 3)
-			fprintf(stderr, "[%s:%d] 32-bit valid exe\n", __func__, __LINE__);
+			fprintf(stderr, "[%s:%d] 32-bit valid exe\n", __extension__ __FUNCTION__, __LINE__);
 		break;
 	case HOTPATCH_EXE_IS_NEITHER:
 	default:
 		return -1;
 	}
 	if (verbose > 1)
-		fprintf(stderr, "[%s:%d] Entry point %p\n", __func__, __LINE__,
+		fprintf(stderr, "[%s:%d] Entry point %p\n", __extension__ __FUNCTION__, __LINE__,
 				(void *)hdr.e_entry);
 	ei->entry_point = (uintptr_t)hdr.e_entry;
 	if (hdr.e_machine != EM_X86_64 && hdr.e_machine != EM_386) {
@@ -507,12 +507,12 @@ static int exe_load_headers(struct elf_internals *ei, int verbose)
 	}
 	if (exe_load_section_headers(ei, verbose) < 0) {
 		fprintf(stderr, "[%s:%d] Error in loading section headers\n",
-				__func__, __LINE__);
+				__extension__ __FUNCTION__, __LINE__);
 		return -1;
 	}
 	if (exe_load_program_headers(ei, verbose) < 0) {
 		fprintf(stderr, "[%s:%d] Error in loading section headers\n",
-				__func__, __LINE__);
+				__extension__ __FUNCTION__, __LINE__);
 		return -1;
 	}
 	return 0;
@@ -536,11 +536,11 @@ struct elf_symbol *exe_load_symbols(const char *filename, int verbose,
 	}
 	if ((rc = exe_load_headers(&ei, verbose)) < 0) {
 		fprintf(stderr, "[%s:%d] Unable to load Elf details for %s\n",
-				__func__, __LINE__, filename);
+				__extension__ __FUNCTION__, __LINE__, filename);
 	}
 	if (verbose > 3)
 		fprintf(stderr, "[%s:%d] Freeing internal structure.\n",
-				__func__, __LINE__);
+				__extension__ __FUNCTION__, __LINE__);
 	if (ei.fd >= 0)
 		close(ei.fd);
 	ei.fd = -1;
@@ -574,7 +574,7 @@ struct elf_symbol *exe_load_symbols(const char *filename, int verbose,
 	} else {
 		if (verbose > 2)
 			fprintf(stderr, "[%s:%d] Readying return values.\n",
-				__func__, __LINE__);
+				__extension__ __FUNCTION__, __LINE__);
 		symbols = ei.symbols;
 		if (symbols_num)
 			*symbols_num = ei.symbols_num;

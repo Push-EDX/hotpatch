@@ -83,7 +83,7 @@ int main(int argc, char **argv, char **envp)
 		memset(cldata, 0, sizeof(*cldata));
 		if (ptrace(PTRACE_GETREGS, pid, NULL, cldata) < 0) {
 			int err = errno;
-			printf("[%s:%d] Error: %s\n", __func__, __LINE__, strerror(err));
+			printf("[%s:%d] Error: %s\n", __extension__ __FUNCTION__, __LINE__, strerror(err));
 		} else {
 			printf("R15: %p\n", (void *)cldata->regs.r15);
 			printf("R14: %p\n", (void *)cldata->regs.r14);
@@ -129,17 +129,17 @@ int main(int argc, char **argv, char **envp)
 		ptrace(PTRACE_SETREGS, pid, NULL, cldata);
 		if ((retval = ptrace(PTRACE_PEEKUSER, pid, offsetof(struct user, u_fpvalid), NULL)) < 0) {
 			int err = errno;
-			printf("[%s:%d] Return value: "LU" Error: %s\n", __func__, __LINE__, retval, strerror(err));
+			printf("[%s:%d] Return value: "LU" Error: %s\n", __extension__ __FUNCTION__, __LINE__, retval, strerror(err));
 		} else {
 			cldata->start_code = retval;
 			printf("Start code: %p\n", (void *)cldata->start_code);
 		}
 		retval = ptrace(PTRACE_PEEKTEXT, pid, cldata->regs.rip, NULL);
-		printf("[%s:%d] Return value: "LU". \n", __func__, __LINE__, retval);
+		printf("[%s:%d] Return value: "LU". \n", __extension__ __FUNCTION__, __LINE__, retval);
         if (argc > 2) {
             ptrace(PTRACE_CONT, pid, 0, 0);
         }
-		printf("[%s:%d] \n", __func__, __LINE__);
+		printf("[%s:%d] \n", __extension__ __FUNCTION__, __LINE__);
 		free(cldata);
 		if (test_child(pid) < 0) {
 			break;

@@ -48,7 +48,7 @@ do { \
 
 void _init()
 {
-	HP_DLLTEST(__func__, 0);
+	HP_DLLTEST(__extension__ __FUNCTION__, 0);
 }
 
 int mysym(char *data, size_t len)

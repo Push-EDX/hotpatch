@@ -20,7 +20,7 @@ static int counter = 0;
 void myfun()
 {
 	printf("%d: I am here in %s on %d\n", counter++,
-		   __func__, __LINE__);
+		   __extension__ __FUNCTION__, __LINE__);
 	if (counter >= INT32_MAX)
 		counter = 0;
 }

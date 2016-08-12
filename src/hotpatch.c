@@ -59,18 +59,18 @@ static int hotpatch_gather_functions(hotpatch_t *hp)
 do { \
 	if (verbose > 2) \
 		fprintf(stderr, "[%s:%d] Checking if %s exists in procmaps.\n",\
-			__func__, __LINE__, name);\
+			__extension__ __FUNCTION__, __LINE__, name);\
 	if (ld_find_library(hp->ld_maps, hp->ld_maps_num, \
 						name, flag, &hp->libs[index], verbose) < 0) { \
 		if (verbose > 0) \
 			fprintf(stderr, "[%s:%d] %s not mapped.\n", \
-					__func__, __LINE__, name); \
+					__extension__ __FUNCTION__, __LINE__, name); \
 		retval = false; \
 	} else { \
 		retval = true; \
 		if (verbose > 2) \
 			fprintf(stderr, "[%s:%d] Found %s\n", \
-					__func__, __LINE__, name); \
+					__extension__ __FUNCTION__, __LINE__, name); \
 	} \
 } while (0)
 #undef LD_LIB_FIND_FN_ADDR
@@ -81,11 +81,11 @@ do { \
 	if (outfn != 0) { \
 		if (verbose > 0) \
 			fprintf(stderr, "[%s:%d] Found %s at 0x"LX" in %s\n", \
-					__func__, __LINE__, fn, outfn, index); \
+					__extension__ __FUNCTION__, __LINE__, fn, outfn, index); \
 	} else { \
 		if (verbose > 0) \
 			fprintf(stderr, "[%s:%d] %s not found in %s.\n", \
-					__func__, __LINE__, fn, index); \
+					__extension__ __FUNCTION__, __LINE__, fn, index); \
 	} \
 } while (0)
 	if (hp->exe_interp.name) {
@@ -95,7 +95,7 @@ do { \
 	if (!ld_found) {
 		if (verbose > 1)
 			fprintf(stderr, "[%s:%d] No interpreter found. Guessing.\n",
-					__func__, __LINE__);
+					__extension__ __FUNCTION__, __LINE__);
 		LD_PROCMAPS_FIND_LIB(LIB_LD, false, HOTPATCH_LIB_LD, ld_found);
 	}
 	LD_PROCMAPS_FIND_LIB(LIB_C, false, HOTPATCH_LIB_C, c_found);
@@ -115,7 +115,7 @@ do { \
 	if (!hp->fn_malloc || !hp->fn_realloc || !hp->fn_free) {
 		if (verbose > 0)
 			fprintf(stderr, "[%s:%d] Some memory allocation routines are"
-					" unavailable. Cannot proceed.\n", __func__, __LINE__);
+					" unavailable. Cannot proceed.\n", __extension__ __FUNCTION__, __LINE__);
 		return -1;
 	}
 	if (dl_found) {
@@ -130,7 +130,7 @@ do { \
 	if (!hp->fn_dlopen || !hp->fn_dlsym) {
 		if (verbose > 0)
 			fprintf(stderr, "[%s:%d] Dynamic Library loading routines were not"
-					" found. Cannot proceed.\n", __func__, __LINE__);
+					" found. Cannot proceed.\n", __extension__ __FUNCTION__, __LINE__);
 		return -1;
 	}
 	if (pthread_found) {
@@ -144,10 +144,10 @@ do { \
 	if (verbose > 1) {
 		if (hp->fn_pthread_create && hp->fn_pthread_detach)
 			fprintf(stderr, "[%s:%d] Pthread's symbol found. Do not need more"
-					" magic.\n", __func__, __LINE__);
+					" magic.\n", __extension__ __FUNCTION__, __LINE__);
 		else
 			fprintf(stderr, "[%s:%d] Pthread's symbol not found. Will disable"
-					" pthread usage in injection.\n", __func__, __LINE__);
+					" pthread usage in injection.\n", __extension__ __FUNCTION__, __LINE__);
 	}
 #undef LD_PROCMAPS_FIND_LIB
 #undef LD_LIB_FIND_FN_ADDR
@@ -175,7 +175,7 @@ hotpatch_t *hotpatch_create(pid_t pid, int verbose)
 		memset(filename, 0, sizeof(filename));
 		snprintf(filename, sizeof(filename), "/proc/%d/exe", pid);
 		if (verbose > 3)
-			fprintf(stderr, "[%s:%d] Exe symlink for pid %d : %s\n", __func__,
+			fprintf(stderr, "[%s:%d] Exe symlink for pid %d : %s\n", __extension__ __FUNCTION__,
 					__LINE__, pid, filename);
 		hp = malloc(sizeof(*hp));
 		if (!hp) {
@@ -194,13 +194,13 @@ hotpatch_t *hotpatch_create(pid_t pid, int verbose)
 				&hp->is64);
 		if (!hp->exe_symbols) {
 			fprintf(stderr, "[%s:%d] Unable to find any symbols in exe.\n",
-					__func__, __LINE__);
+					__extension__ __FUNCTION__, __LINE__);
 			rc = -1;
 			break;
 		}
 		if (hp->exe_entry_point == 0) {
 			fprintf(stderr, "[%s:%d] Entry point is 0. Invalid.\n",
-					__func__, __LINE__);
+					__extension__ __FUNCTION__, __LINE__);
 			rc = -1;
 			break;
 		}
@@ -208,20 +208,20 @@ hotpatch_t *hotpatch_create(pid_t pid, int verbose)
 		hp->ld_maps = ld_load_maps(hp->pid, hp->verbose, &hp->ld_maps_num);
 		if (!hp->ld_maps) {
 			fprintf(stderr, "[%s:%d] Unable to load data in "
-					"/proc/%d/maps.\n", __func__, __LINE__, pid);
+					"/proc/%d/maps.\n", __extension__ __FUNCTION__, __LINE__, pid);
 			rc = -1;
 			break;
 		}
 		if (verbose > 2)
 			fprintf(stderr, "[%s:%d] /proc/%d/maps loaded.\n",
-					__func__, __LINE__, pid);
+					__extension__ __FUNCTION__, __LINE__, pid);
 		if (hp->exe_symbols && hp->exe_symbols_num > 0) {
 			qsort(hp->exe_symbols, hp->exe_symbols_num,
 					sizeof(*hp->exe_symbols), elf_symbol_cmpqsort);
 		}
 		if (hotpatch_gather_functions(hp) < 0) {
 			fprintf(stderr, "[%s:%d] Unable to find all the functions"
-					" needed. Cannot proceed.\n", __func__, __LINE__);
+					" needed. Cannot proceed.\n", __extension__ __FUNCTION__, __LINE__);
 			rc = -1;
 			break;
 		}
@@ -274,7 +274,7 @@ uintptr_t hotpatch_read_symbol(hotpatch_t *hp, const char *symbol, int *type, si
 	size_t idx = 0;
 	if (!hp || !symbol || !hp->exe_symbols) {
 		if (hp->verbose > 2)
-			fprintf(stderr, "[%s:%d] Invalid arguments.\n", __func__, __LINE__);
+			fprintf(stderr, "[%s:%d] Invalid arguments.\n", __extension__ __FUNCTION__, __LINE__);
 		return (uintptr_t)0;
 	}
 	for (idx = 0; idx < hp->exe_symbols_num; ++idx) {
@@ -282,7 +282,7 @@ uintptr_t hotpatch_read_symbol(hotpatch_t *hp, const char *symbol, int *type, si
 		if (strcmp(name, symbol) == 0) {
 			if (hp->verbose > 1)
 				fprintf(stderr, "[%s:%d] Found %s in symbol list at "LU"\n",
-						__func__, __LINE__, symbol, idx);
+						__extension__ __FUNCTION__, __LINE__, symbol, idx);
 			ptr = hp->exe_symbols[idx].address;
 			if (type)
 				*type = hp->exe_symbols[idx].type;
@@ -292,7 +292,7 @@ uintptr_t hotpatch_read_symbol(hotpatch_t *hp, const char *symbol, int *type, si
 		}
 	}
 	if (hp->verbose > 2)
-		fprintf(stderr, "[%s:%d] Symbol %s has address 0x"LX"\n", __func__,
+		fprintf(stderr, "[%s:%d] Symbol %s has address 0x"LX"\n", __extension__ __FUNCTION__,
 				__LINE__, symbol, ptr);
 	return ptr;
 }
@@ -318,30 +318,30 @@ int hotpatch_attach(hotpatch_t *hp)
 	if (!hp->attached) {
 		hp->attached = false;
 		if (hp->verbose > 3)
-			fprintf(stderr, "[%s:%d] Trying to attach to PID %d\n", __func__,
+			fprintf(stderr, "[%s:%d] Trying to attach to PID %d\n", __extension__ __FUNCTION__,
 					__LINE__, hp->pid);
 		if (ptrace(PTRACE_ATTACH, hp->pid, NULL, NULL) < 0) {
 			int err = errno;
 			fprintf(stderr, "[%s:%d] Ptrace Attach failed with error %s\n",
-					__func__, __LINE__, strerror(err));
+					__extension__ __FUNCTION__, __LINE__, strerror(err));
 		} else {
 			int status = 0;
 			if (hp->verbose > 1)
-				fprintf(stderr, "[%s:%d] Waiting for the child.\n", __func__,
+				fprintf(stderr, "[%s:%d] Waiting for the child.\n", __extension__ __FUNCTION__,
 						__LINE__);
 			if (waitpid(-1, &status, 0) < 0) {
 				int err = errno;
 				fprintf(stderr, "[%s:%d] Waitpid failed with error: %s\n",
-						__func__, __LINE__, strerror(err));
+						__extension__ __FUNCTION__, __LINE__, strerror(err));
 			} else {
 				if (WIFEXITED(status) || WIFSIGNALED(status)) {
 					fprintf(stderr, "[%s:%d] PID %d was terminated.\n",
-							__func__, __LINE__, hp->pid);
+							__extension__ __FUNCTION__, __LINE__, hp->pid);
 				} else {
 					hp->attached = true;
 					if (hp->verbose > 0)
 						fprintf(stderr, "[%s:%d] Attached to PID %d\n",
-								__func__, __LINE__, hp->pid);
+								__extension__ __FUNCTION__, __LINE__, hp->pid);
 				}
 			}
 		}
@@ -354,16 +354,16 @@ int hotpatch_detach(hotpatch_t *hp)
 	int rc = -1;
 	if (hp && hp->attached) {
 		if (hp->verbose > 3)
-			fprintf(stderr, "[%s:%d] Detaching from PID %d\n", __func__,
+			fprintf(stderr, "[%s:%d] Detaching from PID %d\n", __extension__ __FUNCTION__,
 					__LINE__, hp->pid);
 		if (ptrace(PTRACE_DETACH, hp->pid, NULL, NULL) < 0) {
 			int err = errno;
 			fprintf(stderr, "[%s:%d] Ptrace detach failed with error %s\n",
-					__func__, __LINE__, strerror(err));
+					__extension__ __FUNCTION__, __LINE__, strerror(err));
 		} else {
 			rc = 0;
 			if (hp->verbose > 0)
-				fprintf(stderr, "[%s:%d] Detached from PID %d\n", __func__,
+				fprintf(stderr, "[%s:%d] Detached from PID %d\n", __extension__ __FUNCTION__,
 						__LINE__, hp->pid);
 		}
 		hp->attached = false;
@@ -378,7 +378,7 @@ static int hp_attach(pid_t pid)
 		int err = errno;
 		fprintf(stderr,
 				"[%s:%d] Ptrace Attach for PID %d failed with error: %s\n",
-				__func__, __LINE__, pid, strerror(err));
+				__extension__ __FUNCTION__, __LINE__, pid, strerror(err));
 		return -1;
 	}
 	return 0;
@@ -390,7 +390,7 @@ static int hp_detach(pid_t pid)
 		int err = errno;
 		fprintf(stderr,
 				"[%s:%d] Ptrace Detach for PID %d failed with error: %s\n",
-				__func__, __LINE__, pid, strerror(err));
+				__extension__ __FUNCTION__, __LINE__, pid, strerror(err));
 		return -1;
 	}
 	return 0;
@@ -402,7 +402,7 @@ static int hp_exec(pid_t pid)
 		int err = errno;
 		fprintf(stderr,
 				"[%s:%d] Ptrace Continue for PID %d failed with error: %s\n",
-				__func__, __LINE__, pid, strerror(err));
+				__extension__ __FUNCTION__, __LINE__, pid, strerror(err));
 		return -1;
 	}
 	return 0;
@@ -414,12 +414,12 @@ static int hp_wait(pid_t pid)
 	if (waitpid(pid, &status, 0) < 0) {
 		int err = errno;
 		fprintf(stderr, "[%s:%d] Waitpid for PID %d failed with error: %s\n",
-				__func__, __LINE__, pid, strerror(err));
+				__extension__ __FUNCTION__, __LINE__, pid, strerror(err));
 		return -1;
 	}
 	if (WIFEXITED(status) || WIFSIGNALED(status)) {
 		fprintf(stderr, "[%s:%d] PID %d was terminated.\n",
-				__func__, __LINE__, pid);
+				__extension__ __FUNCTION__, __LINE__, pid);
 		return -1;
 	}
 	return 0;
@@ -434,7 +434,7 @@ static int hp_get_regs(pid_t pid, struct user *regs)
 		int err = errno;
 		fprintf(stderr,
 				"[%s:%d] Ptrace Getregs for PID %d failed with error: %s\n",
-				__func__, __LINE__, pid, strerror(err));
+				__extension__ __FUNCTION__, __LINE__, pid, strerror(err));
 		return -1;
 	}
 	return 0;
@@ -448,7 +448,7 @@ static int hp_set_regs(pid_t pid, const struct user *regs)
 		int err = errno;
 		fprintf(stderr,
 				"[%s:%d] Ptrace Setregs for PID %d failed with error: %s\n",
-				__func__, __LINE__, pid, strerror(err));
+				__extension__ __FUNCTION__, __LINE__, pid, strerror(err));
 		return -1;
 	}
 	return 0;
@@ -465,14 +465,14 @@ static int hp_copydata(pid_t pid, uintptr_t target,
 		for (jdx = 0; jdx < pksz && pos < datasz; ++jdx)
 			((unsigned char *)&pokedata)[jdx] = data[pos++];
 		if (verbose > 2)
-			fprintf(stderr, "[%s:%d] Pokedata: %p\n", __func__, __LINE__,
+			fprintf(stderr, "[%s:%d] Pokedata: %p\n", __extension__ __FUNCTION__, __LINE__,
 				(void *)pokedata);
 		if (ptrace(PTRACE_POKEDATA, pid, target + idx,
 					pokedata) < 0) {
 			int err = errno;
 			fprintf(stderr,
 				"[%s:%d] Ptrace PokeText for PID %d failed with error: %s\n",
-				__func__, __LINE__, pid, strerror(err));
+				__extension__ __FUNCTION__, __LINE__, pid, strerror(err));
 			return -1;
 		}
 		idx += sizeof(size_t);
@@ -487,18 +487,18 @@ static int hp_peekdata(pid_t pid, uintptr_t target, uintptr_t *outpeek,
 	long peekdata = ptrace(PTRACE_PEEKDATA, pid, target, NULL);
 	err = errno;
 	if (verbose > 2)
-		fprintf(stderr, "[%s:%d] Peekdata: %p\n", __func__, __LINE__,
+		fprintf(stderr, "[%s:%d] Peekdata: %p\n", __extension__ __FUNCTION__, __LINE__,
 			(void *)peekdata);
 	if (peekdata == -1 && err != 0) {
 		fprintf(stderr,
 				"[%s:%d] Ptrace PeekText for PID %d failed with error: %s\n",
-				__func__, __LINE__, pid, strerror(err));
+				__extension__ __FUNCTION__, __LINE__, pid, strerror(err));
 		return -1;
 	}
 	if (outpeek)
 		*outpeek = peekdata;
 	else
-		fprintf(stderr, "[%s:%d] Invalid arguments.\n", __func__, __LINE__);
+		fprintf(stderr, "[%s:%d] Invalid arguments.\n", __extension__ __FUNCTION__, __LINE__);
 	return outpeek ? 0 : -1;
 }
 
@@ -507,12 +507,12 @@ static int hp_pokedata(pid_t pid, uintptr_t target, uintptr_t pokedata,
 {
 	int err = 0;
 	if (verbose > 2)
-		fprintf(stderr, "[%s:%d] Pokedata: %p\n", __func__, __LINE__,
+		fprintf(stderr, "[%s:%d] Pokedata: %p\n", __extension__ __FUNCTION__, __LINE__,
 			(void *)pokedata);
 	if (ptrace(PTRACE_POKEDATA, pid, target, (void *)pokedata) < 0) {
 		fprintf(stderr,
 				"[%s:%d] Ptrace PokeText for PID %d failed with error: %s\n",
-				__func__, __LINE__, pid, strerror(err));
+				__extension__ __FUNCTION__, __LINE__, pid, strerror(err));
 		return -1;
 	}
 	return 0;
@@ -542,10 +542,10 @@ int hotpatch_set_execution_pointer(hotpatch_t *hp, uintptr_t ptr)
 		if (ptrace(PTRACE_GETREGS, hp->pid, NULL, &regs) < 0) {
 			int err = errno;
 			fprintf(stderr, "[%s:%d] Ptrace getregs failed with error %s\n",
-					__func__, __LINE__, strerror(err));
+					__extension__ __FUNCTION__, __LINE__, strerror(err));
 		} else {
 			if (hp->verbose > 1)
-				fprintf(stderr, "[%s:%d] %s is %p\n", __func__, __LINE__,
+				fprintf(stderr, "[%s:%d] %s is %p\n", __extension__ __FUNCTION__, __LINE__,
 						HP_REG_IP_STR,
 						(void *)HP_REG_IP(regs));
 			if (ptr == hp->exe_entry_point)
@@ -554,22 +554,22 @@ int hotpatch_set_execution_pointer(hotpatch_t *hp, uintptr_t ptr)
 			if (ptrace(PTRACE_SETREGS, hp->pid, NULL, &regs) < 0) {
 				int err = errno;
 				fprintf(stderr, "[%s:%d] Ptrace setregs failed with error %s\n",
-						__func__, __LINE__, strerror(err));
+						__extension__ __FUNCTION__, __LINE__, strerror(err));
 			} else {
 				if (hp->verbose > 0)
 					fprintf(stderr, "[%s:%d] Set %s to 0x"LX"\n",
-							__func__, __LINE__, HP_REG_IP_STR, ptr);
+							__extension__ __FUNCTION__, __LINE__, HP_REG_IP_STR, ptr);
 				rc = 0;
 			}
 		}
 	} else {
 		if (!ptr) {
 			fprintf(stderr, "[%s:%d] The execution pointer is null.\n",
-					__func__, __LINE__);
+					__extension__ __FUNCTION__, __LINE__);
 		}
 		if (!hp || !hp->attached) {
 			fprintf(stderr, "[%s:%d] The process is not attached to.\n",
-					__func__, __LINE__);
+					__extension__ __FUNCTION__, __LINE__);
 		}
 	}
 	return rc;
@@ -586,11 +586,11 @@ int hotpatch_inject_library(hotpatch_t *hp, const char *dll, const char *symbol,
 	int rc = 0;
 	unsigned char *mdata = NULL;
 	if (!dll || !hp) {
-		fprintf(stderr, "[%s:%d] Invalid arguments.\n", __func__, __LINE__);
+		fprintf(stderr, "[%s:%d] Invalid arguments.\n", __extension__ __FUNCTION__, __LINE__);
 		return -1;
 	}
 	if (!hp->fn_malloc || !hp->fn_dlopen) {
-		fprintf(stderr, "[%s:%d] No malloc/dlopen found.\n", __func__,
+		fprintf(stderr, "[%s:%d] No malloc/dlopen found.\n", __extension__ __FUNCTION__,
 				__LINE__);
 		return -1;
 	}
@@ -617,7 +617,7 @@ int hotpatch_inject_library(hotpatch_t *hp, const char *dll, const char *symbol,
 	}
 	if (hp->verbose > 0)
 		fprintf(stderr, "[%s:%d] Allocating "LU" bytes in the target.\n",
-				__func__, __LINE__, tgtsz);
+				__extension__ __FUNCTION__, __LINE__, tgtsz);
 	do {
 		/* The stack is read-write and not executable */
 		struct user iregs; /* intermediate registers */
@@ -636,7 +636,7 @@ do { \
 	uintptr_t nullcode = 0; \
 	if (verbose > 1) \
 		fprintf(stderr, "[%s:%d] Copying Null to stack.\n", \
-			__func__, __LINE__); \
+			__extension__ __FUNCTION__, __LINE__); \
 	if ((rc = hp_pokedata(hp->pid, HP_REG_SP(iregs), nullcode, verbose)) < 0) \
 		break; \
 } while (0)
@@ -645,19 +645,19 @@ do { \
 do { \
 	if (verbose > 1) \
 		fprintf(stderr, "[%s:%d] Setting registers and invoking %s.\n", \
-			__func__, __LINE__, fn); \
+			__extension__ __FUNCTION__, __LINE__, fn); \
 	if ((rc = hp_set_regs(hp->pid, &iregs)) < 0) \
 		break; \
 	if (verbose > 1) \
-		fprintf(stderr, "[%s:%d] Executing...\n", __func__, __LINE__); \
+		fprintf(stderr, "[%s:%d] Executing...\n", __extension__ __FUNCTION__, __LINE__); \
 	if ((rc = hp_exec(hp->pid)) < 0) \
 		break; \
 	if (verbose > 1) \
-		fprintf(stderr, "[%s:%d] Waiting...\n", __func__, __LINE__); \
+		fprintf(stderr, "[%s:%d] Waiting...\n", __extension__ __FUNCTION__, __LINE__); \
 	if ((rc = hp_wait(hp->pid)) < 0) \
 		break; \
 	if (verbose > 1) \
-		fprintf(stderr, "[%s:%d] Getting registers.\n", __func__, __LINE__); \
+		fprintf(stderr, "[%s:%d] Getting registers.\n", __extension__ __FUNCTION__, __LINE__); \
 	if ((rc = hp_get_regs(hp->pid, &iregs)) < 0) \
 		break; \
 } while (0)
@@ -676,13 +676,13 @@ do { \
 	do { \
 		if (verbose > 1) \
 			fprintf(stderr, "[%s:%d] Copying Arg 1 to stack.\n", \
-				__func__, __LINE__); \
+				__extension__ __FUNCTION__, __LINE__); \
 		if ((rc = hp_pokedata(hp->pid, HP_REG_SP(iregs) + sizeof(size_t), \
 							  ARG1, verbose)) < 0) \
 			break; \
 		if (verbose > 1) \
 			fprintf(stderr, "[%s:%d] Copying Arg 2 to stack.\n", \
-				__func__, __LINE__); \
+				__extension__ __FUNCTION__, __LINE__); \
 		if ((rc = hp_pokedata(hp->pid, HP_REG_SP(iregs) + 2 * sizeof(size_t), \
 							  ARG2, verbose)) < 0) \
 			break; \
@@ -693,23 +693,23 @@ do { \
 #endif /* __WORDSIZE == 64 */
 		/* Prepare the child for injection */
 		if (verbose > 1)
-			fprintf(stderr, "[%s:%d] Attaching to PID %d\n", __func__,
+			fprintf(stderr, "[%s:%d] Attaching to PID %d\n", __extension__ __FUNCTION__,
 					__LINE__, hp->pid);
 		if ((rc = hp_attach(hp->pid)) < 0)
 			break;
 		if (verbose > 1)
-			fprintf(stderr, "[%s:%d] Waiting...\n", __func__, __LINE__);
+			fprintf(stderr, "[%s:%d] Waiting...\n", __extension__ __FUNCTION__, __LINE__);
 		if ((rc = hp_wait(hp->pid)) < 0)
 			break;
 		if (verbose > 1)
 			fprintf(stderr, "[%s:%d] Getting original registers.\n",
-					__func__, __LINE__);
+					__extension__ __FUNCTION__, __LINE__);
 		if ((rc = hp_get_regs(hp->pid, &oregs)) < 0)
 			break;
 		memcpy(&iregs, &oregs, sizeof(oregs));
         HP_REG_SP(iregs) -= HP_REDZONE;
 		if (verbose > 1)
-			fprintf(stderr, "[%s:%d] Copying stack out.\n", __func__, __LINE__);
+			fprintf(stderr, "[%s:%d] Copying stack out.\n", __extension__ __FUNCTION__, __LINE__);
 		for (idx = 0; idx < sizeof(stack)/sizeof(uintptr_t); ++idx) {
 			if ((rc = hp_peekdata(hp->pid, HP_REG_SP(iregs) +
 							idx * sizeof(size_t), &stack[idx], verbose)) < 0)
@@ -725,7 +725,7 @@ do { \
 		heapptr = HP_REG_AX(iregs); /* keep a copy of this pointer */
 		/* Copy data to the malloced area */
 		if (verbose > 1)
-			fprintf(stderr, "[%s:%d] Copying "LU" bytes to 0x"LX".\n", __func__,
+			fprintf(stderr, "[%s:%d] Copying "LU" bytes to 0x"LX".\n", __extension__ __FUNCTION__,
 					__LINE__, tgtsz, result);
 		if (!result)
 			break;
@@ -738,7 +738,7 @@ do { \
 		HP_SETEXECWAITGET("dlopen");
 		result = HP_REG_AX(iregs);
 		if (verbose > 0)
-			fprintf(stderr, "[%s:%d] Dll opened at 0x"LX"\n", __func__, __LINE__,
+			fprintf(stderr, "[%s:%d] Dll opened at 0x"LX"\n", __extension__ __FUNCTION__, __LINE__,
 				result);
 		if (outaddr)
 			*outaddr = result;
@@ -752,7 +752,7 @@ do { \
 			result = HP_REG_AX(iregs);
 			if (verbose > 0)
 				fprintf(stderr, "[%s:%d] Symbol %s found at 0x"LX"\n",
-						__func__, __LINE__, symbol, result);
+						__extension__ __FUNCTION__, __LINE__, symbol, result);
 			if (result != 0) {
 				HP_NULLIFYSTACK();
 				if (datasz > 0) {
@@ -766,39 +766,39 @@ do { \
 				result = HP_REG_AX(iregs);
 				if (verbose > 0)
 					fprintf(stderr, "[%s:%d] Return value from invoking %s(): %p\n",
-							__func__, __LINE__, symbol, (void *)result);
+							__extension__ __FUNCTION__, __LINE__, symbol, (void *)result);
 				if (outres)
 					*outres = result;
 			} else {
 				if (verbose > 0)
 					fprintf(stderr, "[%s:%d] Unable to find %s(). Dll might "
 							"already have been injected earlier.\n",
-							__func__, __LINE__, symbol);
+							__extension__ __FUNCTION__, __LINE__, symbol);
 				if (outres)
 					*outres = 0;
 			}
 		} else {
 			if (verbose > 1 && symbol)
 				fprintf(stderr, "[%s:%d] %s not invoked as dlsym() wasn't "
-						"found.\n", __func__, __LINE__, symbol);
+						"found.\n", __extension__ __FUNCTION__, __LINE__, symbol);
 			else if (verbose > 1)
 				fprintf(stderr, "[%s:%d] No symbol was specified. _init() might"
-						" have been invoked.\n", __func__, __LINE__);
+						" have been invoked.\n", __extension__ __FUNCTION__, __LINE__);
 			if (outres)
 				*outres = 0;
 		}
 		/* Original reset */
 		if (verbose > 1)
 			fprintf(stderr, "[%s:%d] Setting original registers.\n",
-					__func__, __LINE__);
+					__extension__ __FUNCTION__, __LINE__);
 		if ((rc = hp_set_regs(hp->pid, &oregs)) < 0) {
-			fprintf(stderr, "[%s:%d] PID %d will be unstable.\n", __func__,
+			fprintf(stderr, "[%s:%d] PID %d will be unstable.\n", __extension__ __FUNCTION__,
 					__LINE__, hp->pid);
 			break;
 		}
 		if (verbose > 1)
 			fprintf(stderr, "[%s:%d] Copying stack back.\n",
-					__func__, __LINE__);
+					__extension__ __FUNCTION__, __LINE__);
 		for (idx = 0; idx < sizeof(stack)/sizeof(uintptr_t); ++idx) {
 			if ((rc = hp_pokedata(hp->pid, HP_REG_SP(oregs) - HP_REDZONE
                             + idx * sizeof(size_t), stack[idx], verbose)) < 0)
@@ -807,17 +807,17 @@ do { \
 		if (rc < 0)
 			break;
 		if (verbose > 1)
-			fprintf(stderr, "[%s:%d] Executing...\n", __func__, __LINE__);
+			fprintf(stderr, "[%s:%d] Executing...\n", __extension__ __FUNCTION__, __LINE__);
 		if ((rc = hp_exec(hp->pid)) < 0)
 			break;
 	} while (0);
 	if (rc < 0) {
 		if (hp->verbose > 1)
-			fprintf(stderr, "[%s:%d] Detaching from PID %d\n", __func__,
+			fprintf(stderr, "[%s:%d] Detaching from PID %d\n", __extension__ __FUNCTION__,
 					__LINE__, hp->pid);
 		if (hp_detach(hp->pid) < 0) {
 			if (hp->verbose > 0)
-				fprintf(stderr, "[%s:%d] Error detaching from PID %d\n", __func__,
+				fprintf(stderr, "[%s:%d] Error detaching from PID %d\n", __extension__ __FUNCTION__,
 						__LINE__, hp->pid);
 			rc = -1;
 		}

@@ -96,7 +96,7 @@ int parse_arguments(int argc, char **argv, struct hp_options *opts)
 				}
 				opts->symbol = strdup(optarg);
 				if (!opts->symbol) {
-					printf("[%s:%d] Out of memory\n", __func__, __LINE__);
+					printf("[%s:%d] Out of memory\n", __extension__ __FUNCTION__, __LINE__);
 					return -1;
 				}
 				break;
@@ -112,7 +112,7 @@ int parse_arguments(int argc, char **argv, struct hp_options *opts)
 					opts->is__start = true;
 				}
 				if (!opts->symbol) {
-					printf("[%s:%d] Out of memory\n", __func__, __LINE__);
+					printf("[%s:%d] Out of memory\n", __extension__ __FUNCTION__, __LINE__);
 					return -1;
 				}
 				break;
@@ -122,7 +122,7 @@ int parse_arguments(int argc, char **argv, struct hp_options *opts)
 			case 'l':
 				opts->dll = strdup(optarg);
 				if (!opts->dll) {
-					printf("[%s:%d] Out of memory\n", __func__, __LINE__);
+					printf("[%s:%d] Out of memory\n", __extension__ __FUNCTION__, __LINE__);
 					return -1;
 				}
 				break;
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 		hp = hotpatch_create(opts.pid, opts.verbose);
 		if (!hp) {
 			fprintf(stderr, "[%s:%d] Unable to create hotpatch for PID %d\n",
-					__func__, __LINE__, opts.pid);
+					__extension__ __FUNCTION__, __LINE__, opts.pid);
 			rc = -1;
 			break;
 		}
